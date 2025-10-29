@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards de Física - Leis de Newton</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1em;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            text-align: center;
+            flex: 1;
+            min-width: 140px;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-box .label {
+            font-size: 0.85em;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .stat-box .value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .progress-container {
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+        }
+
+        .progress-text {
+            text-align: center;
+            color: #666;
+            font-size: 0.95em;
+            font-weight: 600;
+        }
+
+        .card-scene {
+            perspective: 1200px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            width: 100%;
+            min-height: 400px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            min-height: 400px;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            transform: rotateY(180deg);
+        }
+
+        .card-category {
+            display: inline-block;
+            padding: 8px 20px;
+            background: rgba(102, 126, 234, 0.15);
+            color: #667eea;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card-question {
+            font-size: 1.8em;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+
+        .card-answer {
+            font-size: 1.6em;
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+
+        .card-explanation {
+            font-size: 1.1em;
+            color: #555;
+            line-height: 1.7;
+            max-width: 600px;
+        }
+
+        .flip-instruction {
+            margin-top: 30px;
+            padding: 15px 30px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 30px;
+            font-size: 0.95em;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .flip-instruction .icon {
+            font-size: 1.5em;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+            border: 2px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #e8e8e8;
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(17, 153, 142, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(17, 153, 142, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(235, 51, 73, 0.3);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(235, 51, 73, 0.4);
+        }
+
+        .filter-section {
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .filter-label {
+            font-size: 0.95em;
+            color: #666;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.3s;
+            color: #666;
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .keyboard-hints {
+            text-align: center;
+            color: #999;
+            font-size: 0.85em;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .keyboard-hints span {
+            display: inline-block;
+            margin: 0 10px;
+        }
+
+        .keyboard-hints kbd {
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 3px 8px;
+            font-family: monospace;
+            font-size: 0.9em;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .completion-message {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .completion-message.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        .completion-message h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .completion-message p {
+            font-size: 1.2em;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        .bounce {
+            animation: bounce 0.6s ease;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .card-question {
+                font-size: 1.4em;
+            }
+
+            .card-answer {
+                font-size: 1.3em;
+            }
+
+            .card-face {
+                padding: 30px;
+                min-height: 350px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Flashcards de Física</h1>
+        <p class="subtitle">Leis de Newton - Estude e revise para a prova!</p>
+
+        <div class="stats">
+            <div class="stat-box">
+                <div class="label">Estudados</div>
+                <div class="value" id="studied">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">Progresso</div>
+                <div class="value" id="progress">0/30</div>
+            </div>
+            <div class="stat-box">
+                <div class="label">Categoria</div>
+                <div class="value" id="currentCategory" style="font-size: 1.2em;">📖</div>
+            </div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+            </div>
+            <div class="progress-text" id="progressText">Comece seu estudo!</div>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-label">🎯 Filtrar por categoria:</div>
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="filterCards('all')">Todos</button>
+                <button class="filter-btn" onclick="filterCards('concept')">💡 Conceitos</button>
+                <button class="filter-btn" onclick="filterCards('formula')">📐 Fórmulas</button>
+                <button class="filter-btn" onclick="filterCards('variable')">🔢 Variáveis</button>
+                <button class="filter-btn" onclick="filterCards('application')">🎯 Aplicação</button>
+            </div>
+        </div>
+
+        <div class="completion-message" id="completionMessage">
+            <h2>🎉 Parabéns!</h2>
+            <p>Você completou todos os flashcards! Continue revisando para fixar o conteúdo.</p>
+        </div>
+
+        <div class="card-scene">
+            <div class="card" id="flashcard" onclick="flipCard()">
+                <div class="card-face card-front">
+                    <div class="card-category" id="categoryFront">CONCEITO</div>
+                    <div class="card-question" id="question">Carregando...</div>
+                    <div class="flip-instruction">
+                        <span class="icon">👆</span>
+                        <span>Clique no card para ver a resposta</span>
+                    </div>
+                </div>
+                <div class="card-face card-back">
+                    <div class="card-category" id="categoryBack">RESPOSTA</div>
+                    <div class="card-answer" id="answer">...</div>
+                    <div class="card-explanation" id="explanation">...</div>
+                    <div class="flip-instruction">
+                        <span class="icon">🔄</span>
+                        <span>Clique novamente para voltar</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-secondary" onclick="previousCard()">
+                ⬅️ Anterior
+            </button>
+            <button class="btn btn-success" onclick="markAsKnown()">
+                ✅ Sei essa!
+            </button>
+            <button class="btn btn-danger" onclick="markAsReview()">
+                📌 Revisar
+            </button>
+            <button class="btn btn-primary" onclick="nextCard()">
+                Próximo ➡️
+            </button>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-secondary" onclick="shuffleCards()">
+                🔀 Embaralhar
+            </button>
+            <button class="btn btn-secondary" onclick="showOnlyMarked()">
+                📌 Ver Marcados
+            </button>
+            <button class="btn btn-secondary" onclick="resetProgress()">
+                🔄 Reiniciar
+            </button>
+        </div>
+
+        <div class="keyboard-hints">
+            <span><kbd>←</kbd> <kbd>→</kbd> Navegar</span>
+            <span><kbd>Espaço</kbd> Virar card</span>
+            <span><kbd>K</kbd> Sei essa</span>
+            <span><kbd>R</kbd> Revisar</span>
+        </div>
+    </div>
+
+    <script>
+        const allFlashcards = [
+            {
+                type: 'concept',
+                category: '💡 Conceito',
+                question: 'O que diz a 1ª Lei de Newton (Lei da Inércia)?',
+                answer: 'Um corpo em repouso tende a permanecer em repouso, e um corpo em movimento tende a permanecer em MRU',
+                explanation: 'A menos que uma força resultante atue sobre ele. É a tendência dos corpos de "resistir" à mudança de estado. Exemplo: quando o ônibus freia, você é jogado para frente!'
+            },
+            {
+                type: 'concept',
+                category: '💡 Conceito',
+                question: 'O que diz a 2ª Lei de Newton (Princípio Fundamental)?',
+                answer: 'F = m · a',
+                explanation: 'A força resultante é igual à massa vezes a aceleração. Quanto maior a força, maior a aceleração. Quanto maior a massa, menor a aceleração para a mesma força.'
+            },
+            {
+                type: 'concept',
+                category: '💡 Conceito',
+                question: 'O que diz a 3ª Lei de Newton (Ação e Reação)?',
+                answer: 'Para toda ação existe uma reação de mesma intensidade, mesma direção e sentido oposto',
+                explanation: 'Ação e reação NUNCA atuam no mesmo corpo, por isso NÃO se anulam! Exemplo: quando você pula, empurra o chão (ação) e o chão empurra você para cima (reação).'
+            },
+            {
+                type: 'formula',
+                category: '📐 Fórmula',
+                question: 'Qual a fórmula da Força Peso?',
+                answer: 'P = m · g',
+                explanation: 'Onde P é o peso (N), m é a massa (kg) e g é a aceleração da gravidade (≈10 m/s²). O peso é a força com que a Terra atrai os corpos.'
+            },
+            {
+                type: 'formula',
+                category: '📐 Fórmula',
+                question: 'Qual a fórmula da componente PARALELA ao plano inclinado?',
+                answer: 'Px = P · sen θ',
+                explanation: 'DICA: Paralela usa SENO! É essa componente que "empurra" o objeto para baixo no plano. Responsável pelo movimento de descida.'
+            },
+            {
+                type: 'formula',
+                category: '📐 Fórmula',
+                question: 'Qual a fórmula da componente PERPENDICULAR ao plano inclinado?',
+                answer: 'Py = P · cos θ',
+                explanation: 'DICA: Perpendicular usa COSSENO! É essa componente que "pressiona" o objeto contra o plano. É equilibrada pela força Normal (N = Py).'
+            },
+            {
+                type: 'formula',
+                category: '📐 Fórmula',
+                question: 'Qual a fórmula do Atrito Cinético?',
+                answer: 'Fatc = μc · N',
+                explanation: 'Onde μc é o coeficiente de atrito cinético e N é a força Normal. Atua quando o objeto está em movimento. Geralmente μe > μc.'
+            },
+            {
+                type: 'formula',
+                category: '📐 Fórmula',
+                question: 'Qual a fórmula do Atrito Estático (máximo)?',
+                answer: 'Fate = μe · N',
+                explanation: 'Onde μe é o coeficiente de atrito estático. Atua quando o objeto está parado, impedindo que comece a se mover. O atrito estático pode variar de 0 até esse valor máximo.'
+            },
+            {
+                type: 'formula',
+                category: '📐 Fórmula',
+                question: 'Qual a fórmula da Força Elástica (Lei de Hooke)?',
+                answer: 'Fel = k · x',
+                explanation: 'Onde k é a constante elástica (N/m) e x é a deformação da mola (m). A força sempre aponta no sentido contrário à deformação.'
+            },
+            {
+                type: 'variable',
+                category: '🔢 Variável',
+                question: 'Qual a unidade de FORÇA no Sistema Internacional?',
+                answer: 'Newton (N)',
+                explanation: 'A unidade de força é o Newton, representado por N. 1 N = 1 kg·m/s²'
+            },
+            {
+                type: 'variable',
+                category: '🔢 Variável',
+                question: 'Qual a unidade de MASSA no Sistema Internacional?',
+                answer: 'Quilograma (kg)',
+                explanation: 'A massa é medida em quilogramas (kg). ATENÇÃO: Não confunda massa (kg) com peso (N)!'
+            },
+            {
+                type: 'variable',
+                category: '🔢 Variável',
+                question: 'Qual a unidade de ACELERAÇÃO no Sistema Internacional?',
+                answer: 'm/s²',
+                explanation: 'Aceleração é medida em metros por segundo ao quadrado (m/s²). Lê-se: "metros por segundo quadrado".'
+            },
+            {
+                type: 'variable',
+                category: '🔢 Variável',
+                question: 'Qual o valor aproximado de "g" (aceleração da gravidade)?',
+                answer: 'g ≈ 10 m/s²',
+                explanation: 'Usamos g ≈ 10 m/s² para facilitar os cálculos. O valor mais preciso é 9,8 m/s². Use sempre o valor dado no problema!'
+            },
+            {
+                type: 'concept',
+                category: '💡 Conceito',
+                question: 'Peso e massa são a mesma coisa?',
+                answer: 'NÃO! Massa é propriedade do corpo (kg), Peso é força (N)',
+                explanation: 'Massa não muda com o local. Peso depende da gravidade. Na Lua, sua massa é igual, mas seu peso é menor! P = m·g'
+            },
+            {
+                type: 'concept',
+                category: '💡 Conceito',
+                question: 'Em um plano horizontal, a Força Normal é igual ao Peso?',
+                answer: 'SIM, em superfície horizontal N = P',
+                explanation: 'Apenas em superfície horizontal SEM outras forças verticais. Em plano inclinado: N = Py = P·cos θ'
+            },
+            {
+                type: 'concept',
+                category: '💡 Conceito',
+                question: 'Por que ação e reação NÃO se anulam?',
+                answer: 'Porque atuam em CORPOS DIFERENTES',
+                explanation: 'As forças de ação e reação agem em objetos separados, então não podem se cancelar! Uma atua no corpo A, a outra no corpo B.'
+            },
+            {
+                type: 'concept',
+                category: '💡 Conceito',
+                question: 'O atrito depende da área de contato entre as superfícies?',
+                answer: 'NÃO! O atrito NÃO depende da área',
+                explanation: 'O atrito depende apenas do coeficiente μ e da força Normal N. A área de contato não importa! Fat = μ·N'
+            },
+            {
+                type: 'concept',
+                category: '💡 Conceito',
+                question: 'Qual atrito é maior: estático ou cinético?',
+                answer: 'Atrito ESTÁTICO é maior (μe > μc)',
+                explanation: 'É mais difícil começar a mover um objeto (vencer atrito estático) do que mantê-lo em movimento (atrito cinético)!'
+            },
+            {
+                type: 'concept',
+                category: '💡 Conceito',
+                question: 'Para onde aponta a Força Normal?',
+                answer: 'PERPENDICULAR à superfície de contato',
+                explanation: 'A Normal sempre forma 90° com a superfície. É uma força de reação da superfície sobre o objeto (3ª Lei).'
+            },
+            {
+                type: 'concept',
+                category: '💡 Conceito',
+                question: 'Para onde aponta a Força Peso?',
+                answer: 'Sempre VERTICAL, para o centro da Terra',
+                explanation: 'O peso sempre aponta para baixo (direção vertical), independente da orientação da superfície onde o objeto está.'
+            },
+            {
+                type: 'concept',
+                category: '💡 Conceito',
+                question: 'O que significa uma constante elástica (k) grande?',
+                answer: 'Mola DURA (difícil de deformar)',
+                explanation: 'Quanto maior o k, mais rígida/dura é a mola. k pequeno = mola mole (fácil de esticar/comprimir). Fel = k·x'
+            },
+            {
+                type: 'concept',
+                category: '💡 Conceito',
+                question: 'O que significa estar em EQUILÍBRIO?',
+                answer: 'ΣF = 0 (soma das forças = zero)',
+                explanation: 'Quando as forças se equilibram, a aceleração é zero (a = 0). O corpo pode estar parado (repouso) ou em MRU (velocidade constante).'
+            },
+            {
+                type: 'application',
+                category: '🎯 Aplicação',
+                question: 'Um bloco tem massa de 5 kg. Qual seu peso? (use g = 10 m/s²)',
+                answer: 'P = 50 N',
+                explanation: 'P = m·g = 5 kg · 10 m/s² = 50 N. Lembre-se: peso tem unidade Newton (N), não kg!'
+            },
+            {
+                type: 'application',
+                category: '🎯 Aplicação',
+                question: 'Força de 20 N aplicada em massa de 4 kg. Qual a aceleração?',
+                answer: 'a = 5 m/s²',
+                explanation: 'F = m·a → 20 = 4·a → a = 20/4 = 5 m/s². Use sempre a 2ª Lei: F = m·a'
+            },
+            {
+                type: 'application',
+                category: '🎯 Aplicação',
+                question: 'Mola com k = 100 N/m esticada 0,2 m. Qual a força elástica?',
+                answer: 'Fel = 20 N',
+                explanation: 'Fel = k·x = 100 N/m · 0,2 m = 20 N. A força elástica é proporcional à deformação.'
+            },
+            {
+                type: 'application',
+                category: '🎯 Aplicação',
+                question: 'Plano inclinado 30°, peso 100 N. Qual Px? (sen 30° = 0,5)',
+                answer: 'Px = 50 N',
+                explanation: 'Px = P·sen θ = 100·0,5 = 50 N. LEMBRE: Paralela usa SENO! Px é a componente que faz descer.'
+            },
+            {
+                type: 'application',
+                category: '🎯 Aplicação',
+                question: 'Normal = 50 N, μc = 0,3. Qual o atrito cinético?',
+                answer: 'Fatc = 15 N',
+                explanation: 'Fatc = μc·N = 0,3 · 50 = 15 N. O atrito é proporcional à Normal.'
+            },
+            {
+                type: 'concept',
+                category: '💡 Conceito',
+                question: 'Qual o sentido do atrito quando um objeto DESCE o plano?',
+                answer: 'Para CIMA do plano (opõe-se ao movimento)',
+                explanation: 'O atrito SEMPRE se opõe ao movimento ou à sua tendência! Se desce → atrito aponta para cima.'
+            },
+            {
+                type: 'concept',
+                category: '💡 Conceito',
+                question: 'Se a massa DOBRA, o peso também dobra?',
+                answer: 'SIM, o peso dobra (P = m·g)',
+                explanation: 'O peso é diretamente proporcional à massa quando g é constante. Se m = 2×, então P = 2×'
+            },
+            {
+                type: 'concept',
+                category: '💡 Conceito',
+                question: 'Qual o primeiro passo para resolver problemas de forças?',
+                answer: 'DESENHAR o diagrama com TODAS as forças',
+                explanation: 'SEMPRE comece desenhando! Isso evita erros e ajuda a visualizar o problema. Identifique peso, normal, atrito, etc.'
+            },
+            {
+                type: 'concept',
+                category: '💡 Conceito',
+                question: 'Em plano inclinado, qual componente causa o movimento de descida?',
+                answer: 'Px (componente paralela = P·sen θ)',
+                explanation: 'Px é a componente que "empurra" o objeto para baixo ao longo do plano. Py pressiona contra o plano.'
+            },
+            {
+                type: 'concept',
+                category: '💡 Conceito',
+                question: 'A mola comprimida empurra ou puxa?',
+                answer: 'EMPURRA para fora',
+                explanation: 'A força elástica sempre tenta retornar a mola ao tamanho natural. Comprimida → empurra. Esticada → puxa.'
+            }
+        ];
+
+        let flashcards = [...allFlashcards];
+        let currentIndex = 0;
+        let studiedCards = new Set();
+        let markedForReview = new Set();
+        let isFlipped = false;
+        let currentFilter = 'all';
+
+        function showCard() {
+            if (flashcards.length === 0) {
+                document.getElementById('question').textContent = 'Nenhum card nesta categoria!';
+                document.getElementById('answer').textContent = '';
+                document.getElementById('explanation').textContent = '';
+                return;
+            }
+
+            const card = flashcards[currentIndex];
+            const cardElement = document.getElementById('flashcard');
+            
+            // Remove flip if card was flipped
+            if (isFlipped) {
+                cardElement.classList.remove('flipped');
+                isFlipped = false;
+            }
+
+            // Update content
+            document.getElementById('question').textContent = card.question;
+            document.getElementById('answer').textContent = card.answer;
+            document.getElementById('explanation').textContent = card.explanation;
+            document.getElementById('categoryFront').textContent = card.category;
+            document.getElementById('categoryBack').textContent = card.category;
+            document.getElementById('currentCategory').textContent = card.category;
+
+            // Update progress
+            updateStats();
+
+            // Check if completed all
+            if (studiedCards.size === allFlashcards.length && currentFilter === 'all') {
+                document.getElementById('completionMessage').classList.add('show');
+            } else {
+                document.getElementById('completionMessage').classList.remove('show');
+            }
+        }
+
+        function flipCard() {
+            const cardElement = document.getElementById('flashcard');
+            cardElement.classList.toggle('flipped');
+            isFlipped = !isFlipped;
+        }
+
+        function nextCard() {
+            studiedCards.add(flashcards[currentIndex].question);
+            currentIndex = (currentIndex + 1) % flashcards.length;
+            showCard();
+        }
+
+        function previousCard() {
+            currentIndex = currentIndex === 0 ? flashcards.length - 1 : currentIndex - 1;
+            showCard();
+        }
+
+        function markAsKnown() {
+            const card = flashcards[currentIndex];
+            studiedCards.add(card.question);
+            markedForReview.delete(card.question);
+            
+            const cardElement = document.getElementById('flashcard');
+            cardElement.classList.add('bounce');
+            setTimeout(() => cardElement.classList.remove('bounce'), 600);
+            
+            setTimeout(() => nextCard(), 300);
+        }
+
+        function markAsReview() {
+            const card = flashcards[currentIndex];
+            markedForReview.add(card.question);
+            
+            const cardElement = document.getElementById('flashcard');
+            cardElement.classList.add('shake');
+            setTimeout(() => cardElement.classList.remove('shake'), 500);
+            
+            setTimeout(() => nextCard(), 300);
+        }
+
+        function shuffleCards() {
+            for (let i = flashcards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [flashcards[i], flashcards[j]] = [flashcards[j], flashcards[i]];
+            }
+            currentIndex = 0;
+            showCard();
+        }
+
+        function filterCards(type) {
+            currentFilter = type;
+            
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Filter cards
+            if (type === 'all') {
+                flashcards = [...allFlashcards];
+            } else {
+                flashcards = allFlashcards.filter(card => card.type === type);
+            }
+            
+            currentIndex = 0;
+            showCard();
+        }
+
+        function showOnlyMarked() {
+            if (markedForReview.size === 0) {
+                alert('Você ainda não marcou nenhum card para revisar!');
+                return;
+            }
+            
+            flashcards = allFlashcards.filter(card => markedForReview.has(card.question));
+            currentIndex = 0;
+            currentFilter = 'marked';
+            
+            // Update button states
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            
+            showCard();
+        }
+
+        function resetProgress() {
+            if (confirm('Tem certeza que deseja reiniciar todo o progresso?')) {
+                studiedCards.clear();
+                markedForReview.clear();
+                flashcards = [...allFlashcards];
+                currentIndex = 0;
+                currentFilter = 'all';
+                
+                // Reset filter buttons
+                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelector('.filter-btn').classList.add('active');
+                
+                showCard();
+            }
+        }
+
+        function updateStats() {
+            const totalCards = currentFilter === 'all' ? allFlashcards.length : flashcards.length;
+            const currentCard = currentIndex + 1;
+            
+            document.getElementById('studied').textContent = studiedCards.size;
+            document.getElementById('progress').textContent = `${currentCard}/${totalCards}`;
+            
+            const percentage = (studiedCards.size / allFlashcards.length) * 100;
+            document.getElementById('progressBar').style.width = `${percentage}%`;
+            
+            let progressMessage = '';
+            if (studiedCards.size === 0) {
+                progressMessage = 'Comece seu estudo! 📚';
+            } else if (studiedCards.size < 10) {
+                progressMessage = 'Continue assim! Você está indo bem! 💪';
+            } else if (studiedCards.size < 20) {
+                progressMessage = 'Ótimo progresso! Mais da metade! 🎯';
+            } else if (studiedCards.size < 30) {
+                progressMessage = 'Quase lá! Você está arrasando! 🚀';
+            } else {
+                progressMessage = 'Parabéns! Você estudou todos os cards! 🎉';
+            }
+            
+            document.getElementById('progressText').textContent = progressMessage;
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            // Prevent default for space to avoid page scroll
+            if (e.key === ' ') {
+                e.preventDefault();
+                flipCard();
+            }
+            
+            if (e.key === 'ArrowRight') {
+                nextCard();
+            }
+            
+            if (e.key === 'ArrowLeft') {
+                previousCard();
+            }
+            
+            if (e.key.toLowerCase() === 'k') {
+                markAsKnown();
+            }
+            
+            if (e.key.toLowerCase() === 'r') {
+                markAsReview();
+            }
+        });
+
+        // Initialize
+        showCard();
+    </script>
+</body>
+</html>
